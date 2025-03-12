@@ -97,3 +97,42 @@ export const parallelDownload = async (
   }
 }
 ```
+- 设置分片数量，默认是4
+- 发送一个range请求只请求0-0字节额，来获取文件总共的大小，fetch，从响应头content-range当中解析文件总共大小的
+- 计算每一个分片的大小，为每一个分片创建一个fetch请求，使用range头部指定下载的范围，使用readablestream处理下载流，实时更新下载的进度，为每一个分片数据转换成为ArrayBuffer
+- 等待所有的分片下载完成proiseall使用mergeArrayBuffers函数合并所有的分片的数据，将合并后的数据创建为file对象返回，
+## 跨域
+credentials: 'omit' 是 Fetch API 中的一个配置选项，用于控制是否在请求中发送凭据（如 cookies、HTTP 认证等）。具体来说：
+
+credentials: 'omit'：表示在请求中不发送任何凭据。即不会包含 cookies、HTTP 认证信息等。
+
+credentials: 'include'：表示在请求中总是发送凭据，即使请求是跨域的。
+
+credentials: 'same-origin'：表示仅在请求与目标 URL 同源时发送凭据。
+
+在你的代码中，credentials: 'omit' 的作用是确保在发送请求时不会携带任何用户凭据，这通常用于以下场景：
+
+跨域请求：当请求的目标 URL 与当前页面的域名不同时，避免发送不必要的 cookies 或其他敏感信息。
+安全性：在某些情况下，你可能不希望将用户的身份验证信息（如 cookies）发送到第三方服务器。
+## ReadableStream
+
+使用 ReadableStream 在处理大文件或流式数据时有以下几个好处：
+
+1. 内存效率
+   
+传统方式：如果使用传统的 fetch 和 response.arrayBuffer()，整个文件会被一次性加载到内存中。对于大文件，这可能导致内存占用过高，甚至引发内存不足的问题。
+
+ReadableStream：ReadableStream 允许你以流式的方式处理数据，数据可以分块读取和处理，从而显著减少内存占用。
+3. 实时处理
+传统方式：必须等待整个文件下载完成后才能开始处理。
+ReadableStream：可以在数据到达时立即处理，实现实时处理。例如，在下载过程中可以实时更新进度条或进行其他操作。
+4. 更好的用户体验
+传统方式：用户需要等待整个文件下载完成后才能看到结果。
+ReadableStream：可以在数据到达时立即显示部分结果，提升用户体验。例如，视频或音频文件可以在下载过程中开始播放。
+5. 支持中断和恢复
+传统方式：如果下载中断，可能需要重新下载整个文件。
+ReadableStream：可以更容易地实现断点续传，只需从上次中断的地方继续下载。
+6. 灵活性
+传统方式：处理方式较为固定，难以适应复杂的需求。
+ReadableStream：提供了更高的灵活性，可以根据需要自定义数据处理逻辑。
+
